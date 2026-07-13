@@ -1,17 +1,18 @@
-# Processing Sketches
+# Processing Sketches for Sensel Morph
 
 This folder contains six Processing apps for viewing, transmitting, calibrating, recording
-and replaying Sensel Morph data. Open each sketch by launching the `.pde` file
-inside its same-named folder.
+and replaying data from the Sensel Morph touchpad. Open each sketch by launching the `.pde` file inside its same-named folder.
+
+All of the apps below are known to work in MacOS 15.6 with [Processing 4.5.5](https://github.com/processing/processing4/releases#release-processing-1433-4.5.5) (June 24, 2026) — **except** for the Syphon+OSC Transmitter, which is known to work with [Processing 4.3](https://github.com/processing/processing4/releases?page=3#release-processing-1293-4.3).
 
 | Sketch | Primary use | Receives | Sends / Publishes | Notes |
 |---|---|---|---|---|
-| [**OSC_Transmitter**](sensel_morph_osc_transmitter/) | Standalone live device-to-OSC transmitter with local display, calibration, raw recording, and replay. | Raw Morph frames over USB CDC | OSC over UDP, default port `1560`. A [Processing OSC receiver](sensel_morph_osc_receiver/) is provided. | Best Processing starting point for non-Syphon OSC workflows. Uses native Java UDP, not `oscP5`. |
-| [**OSC_Receiver**](sensel_morph_osc_receiver/) | Live OSC monitor/viewer. | OSC from one of the Processing transmitters, or from the `sensel_morph_osc` Python tool | Nothing; display-only. | Displays pressure, labels, contacts, summary values, and an accelerometer slab view. Useful for checking transmitter output. |
-| [**Syphon_OSC_Transmitter**](sensel_morph_syphon_osc_transmitter/) | Standalone live transmitter for visual/video tools such as TouchDesigner. | Raw Morph frames over USB CDC | OSC over UDP, plus Syphon buffers for the pressure, labels, and contact information. A [sample TouchDesigner project](../touchdesigner/) is provided. | Requires the Processing Syphon library. **NOTE:** Known-good local setup used **Processing 4.3** because of Syphon native-library architecture constraints. |
-| [**Websocket_Transmitter**](sensel_morph_websocket_transmitter/) | Standalone live device-to-WebSocket transmitter for browser/p5.js clients. | Raw Morph frames over USB CDC | WebSocket server, default `ws://127.0.0.1:1561`. [Sample p5.js WebSocket receivers](../p5js/) are provided. | Mirrors the OSC transmitter UI and recorder/replay behavior, but publishes the WebSocket protocol used by the p5.js receivers. |
-| [**OSC_Calibrator**](sensel_morph_osc_calibrator/) | Build per-device pressure calibration files. | High-res `uint16` pressure OSC from one of the Processing transmitters. | Calibration JSON/TIFF/PFM files used in the Processing transmitters. | Run with an OSC transmitter sending `185 x 105` uint16 pressure. Produces calibration files consumed by transmitters. |
-| [**Capture_Viewer**](sensel_morph_capture_viewer/) | Offline recording viewer. | `.jsonl` or `.json` recordings created with one of the Processing transmitters | Nothing; display only. | Uses the same display/decoding logic as the transmitters, but only replays files from `data/recordings/` or a chosen recording path. |
+| [**OSC_Transmitter**](sensel_morph_osc_transmitter/) | Standalone live device-to-OSC transmitter with local display, calibration, raw recording, and replay. | Receives raw Morph frames over USB CDC | Emits OSC over UDP on (default) port `1560`; a [Processing OSC receiver](sensel_morph_osc_receiver/) is provided. Also able to save `.jsonl` recordings. | Best starting point for OSC workflows. Uses native Java UDP, not `oscP5`. A useful bridge to many other apps. |
+| [**OSC_Receiver**](sensel_morph_osc_receiver/) | Live OSC monitor/viewer. | Receives OSC from one of the Processing transmitters, or from the provided Python tool | Nothing; display-only. | Displays pressure, labels, contacts, and other data. Useful for checking transmitter output. |
+| [**Syphon+OSC_Transmitter**](sensel_morph_syphon_osc_transmitter/) | Standalone live transmitter for audiovisual tools such as TouchDesigner. | Receives raw Morph frames over USB CDC | Emits OSC over UDP, *and* Syphon image buffers for the Morph's pressure, labels, and contact information. A [sample TouchDesigner receiver](../touchdesigner/) is provided. Also able to save `.jsonl` recordings. | Requires the Processing Syphon library. **NOTE:** Our known-good local setup used **Processing 4.3** because of Syphon's native-library architecture constraints. |
+| [**Websocket_Transmitter**](sensel_morph_websocket_transmitter/) | Standalone live device-to-WebSocket transmitter for browser/p5.js clients. | Receives raw Morph frames over USB CDC | Emits device data via a WebSocket server, default `ws://127.0.0.1:1561`. [Sample p5.js WebSocket receivers](../p5js/) are provided. Also able to save `.jsonl` recordings. | Similar to the OSC transmitter, but publishes the data over the WebSocket protocol. |
+| [**OSC_Calibrator**](sensel_morph_osc_calibrator/) | Builds optional pressure calibration files to compensate for fixed noise patterns. | Receives `uint16` pressure OSC from one of the Processing transmitters. | Exports calibration `.json` files used in the Processing transmitters. | Should be run with an OSC transmitter sending `185 x 105`, `uint16` pressure. |
+| [**Capture_Viewer**](sensel_morph_capture_viewer/) | Offline recording viewer. | Loads `.jsonl` or `.json` recordings created with one of the Processing transmitters | Nothing; display only. | Uses the same display/decoding logic as the transmitters. |
 
 
 ---
