@@ -12,11 +12,12 @@ ws://127.0.0.1:1561
 
 It is intended to work with the included p5.js receivers:
 
-- `p5js/sensel_morph_ws_receiver_p5v1`
-- `p5js/sensel_morph_ws_receiver_p5v2`
+- [`p5js/sensel_morph_ws_receiver_p5v1`](../../p5js/sensel_morph_ws_receiver_p5v1)
+- [`p5js/sensel_morph_ws_receiver_p5v2`](../../p5js/sensel_morph_ws_receiver_p5v2)
 
 
-(The app uses the same WebSocket protocol as the Python-based `sensel_morph_ws` tool in this repository.)
+(The app uses the same WebSocket message family and raster header as the
+Python-based `sensel_morph_ws` tool in this repository.)
 
 ---
 
@@ -36,12 +37,13 @@ Important keys:
   port name when possible.
 - `pressure`, `labels`, `contacts`: `true` or `false`.
 - `pressure_res`: `high`, `med`, or `low`.
-- `pressure_type`: `uint8` or `uint16`.
+- `pressure_type`: `uint8`. The disabled `uint16` UI option is shown only as a
+  reminder that other non-WebSocket transmitters can use 16-bit pressure.
 - `local_view`: bitmask for local display layers (`1` pressure, `2` labels,
   `4` contacts; `7` means all layers).
 - `use_calibration`: `true` or `false`; only active when a matching
   `data/calibration_<serial_number>.json` file is present.
-- `rle`: `true` sends pressure/label rasters as byte-RLE `[count,value]`
+- `rle`: `true` sends pressure/label raster bytes as byte-RLE `[count,value]`
   payloads using WS header flag bit `0x04`.
 - `force_scale`: divide pressure values before transport packing.
 - `fps_limit`: optional frame-rate limit; `0` means unbounded.
@@ -52,14 +54,17 @@ Important keys:
 - `recording_loop`, `recording_timing`, `playback_policy`, `recording_fps`:
   playback behavior controls shared with the OSC transmitter.
 
-Pressure WebSocket rasters can be sent as `uint8` or `uint16`; the binary
-WebSocket raster header carries the bit depth so receivers can decode either.
+All WebSocket raster data in this repository is `uint8`: pressure rasters,
+label-ID rasters, the Python `sensel_morph_ws` sender, this Processing
+transmitter, and the included p5.js WebSocket receivers all use `bit_depth = 8`.
+
 Accelerometer data is always requested and transmitted. When contacts are
 enabled along with pressure and labels, the sketch uses fresh label-mask
 raster-derived ellipses, peaks, and bounding boxes where available. With
 pressure plus contacts but no labels, it uses the hybrid pressure+bbox ellipse
 path for isolated contacts and falls back to firmware ellipses for overlaps.
-Contacts-only mode remains lightweight and uses the firmware contact geometry.
+Contacts-only mode remains lightweight and uses firmware contact geometry.
+
 
 
 ---
@@ -71,7 +76,8 @@ Binary raster messages:
 - `SMPR`: pressure raster
 - `SMLB`: label raster
 
-Both use the same 32-byte little-endian header as the Python `sensel_morph_ws` program presented in this repository:
+Both use the same 32-byte little-endian header layout as the Python
+`sensel_morph_ws` program presented in this repository.
 
 ```text
 magic        4s   "SMPR" or "SMLB"
@@ -82,7 +88,7 @@ frame_id     u32
 timestamp    u32
 width        u16
 height       u16
-bit_depth    u8   8 or 16
+bit_depth    u8   8
 flags        u8   bit0 calibrated, bit2 RLE
 reserved     u16  0
 payload_len  u32
@@ -111,15 +117,15 @@ JSON text messages use the same shape as the Python sender:
 - `7`: all layers
 - `s`: toggle local pressure display sampling
 - `c`: toggle calibration, when a matching calibration file is available
-- Spacebar: pause/restart playback when in playback mode
+- Spacebar: pause/resume playback when in playback mode
 - Left/right arrows: step one frame while playback is paused
 - `p`: save `screenshots/sensel_<frameCount>_pressure.png`,
   `screenshots/sensel_<frameCount>_labels.png`, and
   `screenshots/sensel_<frameCount>_contacts.png`
 - `h`: toggle HUD and right-side settings UI
 
-The right-side settings UI can change transmit streams, resolution, pressure
-type, RLE, calibration, live/record/playback mode, and recording selection.
+The right-side settings UI can change transmit streams, resolution, RLE,
+calibration, live/record/playback mode, and recording selection.
 The left-side `local view` checkboxes control the same layer bitmask as keys
 `1` through `7`, with local display sampling grouped below them. Stream changes
 briefly stop and restart device scanning, then send a fresh status message. Use

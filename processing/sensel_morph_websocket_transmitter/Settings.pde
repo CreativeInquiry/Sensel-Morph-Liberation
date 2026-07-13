@@ -95,9 +95,10 @@ void normalizeSettings(MorphSettings s) {
   if (!s.labelRes.equals("high") && !s.labelRes.equals("med") && !s.labelRes.equals("low")) {
     s.labelRes = s.pressureRes;
   }
-  if (!s.pressureType.equals("uint16")) {
-    s.pressureType = "uint8";
-  }
+  // WebSocket output in this repository is intentionally uint8-only. The
+  // p5.js receivers reject bit_depth != 8, and browser display paths are 8-bit
+  // grayscale anyway, so settings files copied from other sketches are coerced.
+  s.pressureType = "uint8";
   if (!s.source.equals("recording")) {
     s.source = "device";
   }

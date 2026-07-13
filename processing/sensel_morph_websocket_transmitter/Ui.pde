@@ -29,7 +29,9 @@ void drawSettingsUi() {
 
   text("pressure_type", x + 12, y); y += 18;
   drawUiRadio("uint8", config.pressureType.equals("uint8"), x + 16, y); y += UI_ROW;
-  drawUiRadio("uint16", config.pressureType.equals("uint16"), x + 16, y); y += UI_ROW + 8;
+  // Keep uint16 visible as a signpost for users coming from the OSC sketches,
+  // but disable it here: all WebSocket raster data in this repo is uint8.
+  drawUiRadio("uint16", false, x + 16, y, false); y += UI_ROW + 8;
 
   text("transport", x + 12, y); y += 18;
   drawUiCheckbox("rle", config.rle, x + 16, y); y += UI_ROW + 8;
@@ -163,7 +165,7 @@ void handleSettingsUiMouse(int mx, int my) {
     return;
   }
   y += UI_ROW;
-  if (hitUiRow(mx, my, x + 16, y)) {
+  if (hitUiRow(mx, my, x + 16, y) && pressureTypeSelectable("uint16")) {
     setPressureType("uint16");
     return;
   }
@@ -344,10 +346,17 @@ void setPressureRes(String value) {
 }
 
 void setPressureType(String value) {
+  if (!pressureTypeSelectable(value)) {
+    return;
+  }
   if (!config.pressureType.equals(value)) {
     config.pressureType = value;
     handleOutputFormatChanged();
   }
+}
+
+boolean pressureTypeSelectable(String value) {
+  return value.equals("uint8");
 }
 
 boolean pressureResSelectable(String value) {
