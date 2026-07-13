@@ -1,34 +1,30 @@
 # sensel_morph_syphon_osc_transmitter
 
-**ALERT: Compatible with Processing 4.3**
+**ALERT: Known to be compatible with Processing 4.3**
 
-*Using this [Processing 4.3](https://github.com/processing/processing4/releases/tag/processing-1293-4.3) sketch, you can transmit the Sensel Morph pressure image to other apps on your computer, such as [TouchDesigner](https://derivative.ca/UserGuide/Syphon_Spout_In_TOP), using [Syphon](https://syphon.info/).*
+*Using this [Processing 4.3](https://github.com/processing/processing4/releases/tag/processing-1293-4.3) sketch, you can transmit the Sensel Morph pressure image to other apps on your computer, such as [TouchDesigner](https://derivative.ca/UserGuide/Syphon_Spout_In_TOP), using [Syphon](https://syphon.info/). The sketch also sends Sensel Morph data over OSC.*
 
 ---
-
-Processing sketch that connects directly to the Sensel Morph, decodes pressure,
-label, contact, and accelerometer data, emits OSC, and publishes Syphon graphics
-buffers for use in macOS video tools such as TouchDesigner.
 
 ![processing_to_touchdesigner_via_syphon.png](images/processing_to_touchdesigner_via_syphon.png)
-
----
 
 
 ## Overview
 
+
 This directory presents a Processing 4.3 sketch that connects directly to the Sensel Morph over USB CDC (Communications Device Class) serial; decodes live
-pressure/label/contact frames; broadcasts this information over OSC; supports
-raw recording/playback; and publishes up to three different graphics buffers
-over Syphon:
+pressure, label, contact, and accelerometer information; and then emits both OSC data and Syphon graphics buffers for use in macOS software such as TouchDesigner. The sketch publishes up to three different graphics buffers over Syphon:
 
 - `Sensel Morph Pressure`
 - `Sensel Morph Labels`
 - `Sensel Morph Contacts`
 
-It uses native Java UDP for OSC and does not require `oscP5`, Python, or the
-Sensel SDK. It does require the [Processing Syphon library](https://github.com/Syphon/Processing) (`codeanticode.syphon.*`), which you can install using the Processing Contribution Manager (*Sketch > Import Library > Manage Libraries*).
+It uses native Java UDP for OSC and does not require `oscP5`, Python, or the Sensel SDK. It does require the [Processing Syphon library](https://github.com/Syphon/Processing) (`codeanticode.syphon.*`), which you can install using the Processing Contribution Manager (*Sketch > Import Library > Manage Libraries*).
 
+The `Sensel Morph Pressure` Syphon buffer defaults
+to bicubic shader interpolation for prettier graphics output. On the other hand, the `Sensel Morph Labels` buffer is always displayed with nearest-neighbor interpolation so label IDs remain discrete.
+
+The sketch also supports recording and playback of Sensel Morph interactioms. 
 
 ---
 

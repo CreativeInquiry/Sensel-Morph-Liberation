@@ -1,8 +1,10 @@
 # sensel_morph_osc_transmitter
 
+![sensel_morph_osc_transmitter_screenshot](images/sensel_morph_osc_transmitter_screenshot.png)
+
 This is a Processing 4 sketch that connects directly to the Sensel Morph over USB CDC
 serial, decodes live frames, displays the pressure/label/contact layers, and
-emits OSC using the `/sensel_morph/...` protocol. 
+emits the device data over OSC using the `/sensel_morph/...` protocol. 
 
 This sketch use Processing's [Serial Library](https://processing.org/reference/libraries/serial/index.html) for USB CDC register I/O; it It does *not* use the Sensel SDK. Likewise, it does not use `oscP5`; OSC packets are built with native Java UDP classes. 
 
@@ -149,3 +151,5 @@ When playback is paused, the current frame is still retransmitted repeatedly
 using `fps_limit` when set, otherwise `recording_fps`. Downstream receivers
 therefore continue to see fresh data for the held frame rather than a silent or
 broken stream.
+
+---
