@@ -1,0 +1,28 @@
+# Sensel Morph Processing OSC transmitter settings.
+# Format: key<TAB>value
+host	127.0.0.1
+port	1560
+device	
+serial_number	
+pressure	true
+pressure_res	high
+pressure_type	uint8
+local_view	7
+use_calibration	true
+labels	true
+contacts	true
+rle	true
+chunk_size	4096
+compat	
+force_scale	1.0
+fps_limit	0.0
+read_timeout_ms	1000
+accel_counts_per_g	15600.0
+source	device
+recording_file	
+recording_loop	true
+recording_timing	realtime
+playback_policy	favor_timing
+recording_fps	30.0
+record_enabled	false
+record_dir	recordings

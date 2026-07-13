@@ -1,0 +1,40 @@
+[project]
+name = "sensel_morph_liberation"
+version = "0.0.0"
+description = "Capture, decode, and broadcast Sensel Morph pressure, label, contact, and accelerometer data"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "hidapi",
+  "numpy",
+  "Pillow",
+  "python-osc",
+  "pyserial",
+  "pyusb",
+]
+
+[project.scripts]
+sensel_morph_osc = "sensel_morph_osc:main"
+sensel_morph_ws = "sensel_morph_ws:main"
+sensel_morph_led = "sensel_morph_led:main"
+sensel_decode_pressure = "decode_pressure:main"
+sensel_morph_capture = "morph_capture:main"
+sensel_morph_capture_session = "morph_capture_session:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[tool.setuptools]
+py-modules = [
+  "decode_pressure",
+  "morph_capture",
+  "morph_capture_session",
+  "sensel_morph_led",
+  "sensel_morph_osc",
+  "sensel_morph_ws",
+]
+
+[tool.setuptools.package-dir]
+"" = "tools"

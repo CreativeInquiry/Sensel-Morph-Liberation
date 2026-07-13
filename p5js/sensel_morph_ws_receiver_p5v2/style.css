@@ -1,0 +1,40 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #111;
+  color: #eee;
+}
+canvas {
+  display: block;
+}
+
+#display-controls,
+#display-controls *,
+.display-control-text,
+.display-control-checkbox,
+.display-control-checkbox * {
+  font-family: Arial, sans-serif;
+  font-size: 10px !important;
+  line-height: 13px !important;
+}
+
+.display-control-checkbox {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px;
+}
+
+.display-control-checkbox input {
+  margin: 0 3px 0 0;
+}
+
+.display-control-checkbox span,
+.display-control-checkbox label {
+  position: relative;
+  top: -2px;
+}
+
+.display-control-text {
+  position: relative;
+  top: -3px;
+}

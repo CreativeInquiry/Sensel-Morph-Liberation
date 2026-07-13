@@ -1,0 +1,49 @@
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
+# Python bytecode and caches
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+
+# Python packaging/build artifacts
+*.egg
+*.egg-info/
+**/*.egg-info/
+.eggs/
+build/
+dist/
+pip-wheel-metadata/
+wheelhouse/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+__pypackages__/
+python/.venv/
+python/venv/
+
+# Coverage and local test output
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Local research data, captures, and external checkouts
+analysis/
+captures/
+device_probe/
+external/
+notes.txt
