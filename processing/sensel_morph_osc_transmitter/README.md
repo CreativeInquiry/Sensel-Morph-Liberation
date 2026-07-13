@@ -1,15 +1,36 @@
 # sensel_morph_osc_transmitter
 
-Processing 4 sketch that connects directly to the Sensel Morph over USB CDC
+This is a Processing 4 sketch that connects directly to the Sensel Morph over USB CDC
 serial, decodes live frames, displays the pressure/label/contact layers, and
-emits OSC using the native `/sensel_morph/...` protocol.
+emits OSC using the `/sensel_morph/...` protocol. 
 
-It does not require `oscP5`; OSC packets are built with Java UDP classes. It
-also does not drive the Morph LED strip.
+This sketch use Processing's [Serial Library](https://processing.org/reference/libraries/serial/index.html) for USB CDC register I/O; it It does *not* use the Sensel SDK. Likewise, it does not use `oscP5`; OSC packets are built with native Java UDP classes. 
+
+**Contents**: 
+
+* [Settings](#settings)
+* [Key Commands and User Interface](#key-commands-and-user-interface)
+* [Recording and Replay](#recording-and-replay)
+
+---
 
 ## Settings
 
-Edit `data/settings.txt`. The file is tab-separated:
+The sketch loads a tab-separated `data/settings.txt`:
+
+```text
+host	127.0.0.1
+port	1560
+pressure	true
+pressure_res	med
+pressure_type	uint8
+labels	true
+contacts	true
+rle	true
+compat	
+```
+
+The `settings.txt` file is tab-separated, i.e.:
 
 ```text
 key<TAB>value
@@ -27,7 +48,7 @@ Important keys:
 - `local_view`: bitmask for local display layers (`1` pressure, `2` labels,
   `4` contacts; `7` means all layers).
 - `use_calibration`: `true` or `false`; only active when a matching
-  `data/calibration_<serial_number>.json` file is present.
+  `data/calibration_<serial_number>.json` calibration file is present.
 - `rle`: `true` sends pressure/label rasters on `_rle` OSC addresses only.
 - `chunk_size`: byte size for OSC blob chunking; `4096` is conservative.
 - `compat`: empty, `morphosc`, `senselosc`, or `morphosc,senselosc`.
@@ -51,7 +72,9 @@ enabled along with pressure and labels, the sketch uses raster-derived ellipses,
 bounding boxes, and peaks where available. Contacts-only mode remains lightweight
 and uses the firmware contact geometry.
 
-## Keys
+---
+
+## Key Commands and User Interface
 
 - `1`: pressure
 - `2`: labels
@@ -94,7 +117,9 @@ capture file and other resolution choices are grayed out. `pressure_type`,
 output formatting. They do not restart playback; if playback is paused, the held
 frame is refreshed and retransmitted with the new output format immediately.
 
-## Raw Recording and Replay
+---
+
+## Recording and Replay
 
 Choose `recording` in the right-side mode controls to start writing raw Morph
 frame packets to JSONL files in `data/recordings/`. Switch back to `live device`
