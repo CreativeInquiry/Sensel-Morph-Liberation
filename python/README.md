@@ -21,11 +21,11 @@ directory with `pipx` or run them from source during development.
 
 | Command & Source File | Primary use | Receives | Sends / Produces | Notes |
 |---|---|---|---|---|
-| `sensel_morph_osc`<br/>[`tools/sensel_morph_osc.py`](tools/sensel_morph_osc.py) | Live USB CDC reader and OSC broadcaster. | Raw Morph frames over USB CDC serial. | OSC over UDP, default port `1560`. | Main Python bridge for Processing, Max, TouchDesigner, and other OSC tools. Accelerometer is always sent; pressure, labels, and contacts are selected by flags. |
-| `sensel_morph_ws`<br/>[`tools/sensel_morph_ws.py`](tools/sensel_morph_ws.py) | Live USB CDC reader and WebSocket broadcaster for browser sketches. | Raw Morph frames over USB CDC serial. | WebSocket binary raster frames plus JSON metadata/contact messages. | Browser-facing path for the p5.js receivers. Pressure and labels are sent as `uint8`. |
-| `sensel_morph_capture_session`<br/>[`tools/morph_capture_session.py`](tools/morph_capture_session.py) | Current Python recorder. | Raw Morph frames over USB CDC serial. | Processing-compatible JSONL recordings by default; legacy JSON on request. | Preferred Python recording tool. Takes newline-delimited JSON commands on stdin. |
-| `sensel_morph_capture`<br/>[`tools/morph_capture.py`](tools/morph_capture.py) | One-shot low-level capture/probe utility. | Raw Morph frames over USB CDC serial. | Single capture/probe outputs. | Older diagnostic utility; useful for low-level probing, not the main recorder. |
-| `sensel_morph_led`<br/>[`tools/sensel_morph_led.py`](tools/sensel_morph_led.py) | Control the Morph's 24 white LEDs. | Raw force/contact data as needed for pressure-reactive modes. | LED register writes over USB CDC serial. | Fun but throughput-expensive. LED animation can significantly slow frame capture. |
+| [`sensel_morph_osc.py`](tools/sensel_morph_osc.py) | Live USB CDC reader and OSC broadcaster. | Raw Morph frames over USB CDC serial. | OSC over UDP, default port `1560`. | Main Python bridge for Processing, Max, TouchDesigner, and other OSC tools. Accelerometer is always sent; pressure, labels, and contacts are selected by flags. |
+| [`sensel_morph_ws.py`](tools/sensel_morph_ws.py) | Live USB CDC reader and WebSocket broadcaster for browser sketches. | Raw Morph frames over USB CDC serial. | WebSocket binary raster frames plus JSON metadata/contact messages. | Browser-facing path for the p5.js receivers. Pressure and labels are sent as `uint8`. |
+| [`sensel_morph_capture_session.py`](tools/morph_capture_session.py) | Current Python recorder. | Raw Morph frames over USB CDC serial. | Processing-compatible JSONL recordings by default; legacy JSON on request. | Preferred Python recording tool. Takes newline-delimited JSON commands on stdin. |
+| [`sensel_morph_capture.py`](tools/morph_capture.py) | One-shot low-level capture/probe utility. | Raw Morph frames over USB CDC serial. | Single capture/probe outputs. | Older diagnostic utility; useful for low-level probing, not the main recorder. |
+| [`sensel_morph_led.py`](tools/sensel_morph_led.py) | Control the Morph's 24 white LEDs. | Raw force/contact data as needed for pressure-reactive modes. | LED register writes over USB CDC serial. | Fun but throughput-expensive. LED animation can significantly slow frame capture. |
 
 ---
 

@@ -1,4 +1,4 @@
-# Recovery of the Sensel Morph Data: Lab Notes
+# Recovery of Sensel Morph Data: Lab Notes
 
 ---
 
@@ -13,7 +13,7 @@ dead ends were, and how the current tools came together.
 The short version is this: the Sensel Morph was always capable of producing a
 dense pressure image, but the public source code did not include the
 decompressor needed to read it. The device sends compressed pressure and label
-frames over USB CDC serial. The stream is compressed, not encrypted. By combining
+frames over USB CDC serial. The stream is compressed, but not encrypted. By combining
 the public SDK, third-party code, controlled recordings from a real Morph, and
 disassembly of Sensel's Windows decompression DLL, we recovered the pressure
 codec, the label codec, the frame layout, and enough of the contact pipeline to

@@ -1,5 +1,10 @@
 # Sensel Morph Liberation
 
+
+![sensel_loop.gif](images/sensel_loop_1.gif)<br />*Get Sensel Morph touchpad data over OSC in 2026+ —* ***without*** *the obsolete and unsupported Sensel SDK.*
+
+By Golan Levin, July 2026
+
 Status: working raw-pressure decoder and visualizer, July 2026.
 
 This repo is a reverse-engineering workspace and tool collection for liberating
@@ -9,9 +14,19 @@ Sensel's closed library, and expanded into the Morph's `185 x 105` force image.
 
 The pressure stream is compressed, not encrypted.
 
-![processing_to_touchdesigner_via_syphon.png](images/processing_to_touchdesigner_via_syphon.png)
+#### Contents: 
 
-## Current Result
+* [Overview](#overview)
+* [Processing Utilities for Sensel Morph](#processing-utilities-for-sensel-morph)
+* [Python Utilities for Sensel Morph](#python-utilities-for-sensel-morph)
+* [Other Documentation](#other-documentation)
+
+
+---
+
+## Overview
+
+![sensel_morph_channels.png](images/sensel_morph_channels.png)
 
 We can:
 
@@ -23,122 +38,70 @@ We can:
 - Decode pressure+labels mixed frames for label reverse engineering.
 - Play captured recordings in a Processing sketch.
 
-Important files:
 
-- `python/tools/morph_capture.py`: one-shot CDC pressure capture.
-- `python/tools/morph_capture_session.py`: stdin-driven capture session used for the
-  recorded experiments.
-- `python/tools/decode_pressure.py`: offline pressure decoder, metrics writer, and PGM
-  preview/PNG generator.
-- `python/tools/sensel_morph_osc.py`: source-checkout runner for the live OSC
-  broadcaster installed as `sensel_morph_osc`.
-- `processing/sensel_morph_capture_viewer/`: offline Processing viewer for raw
-  JSONL and legacy JSON recordings.
-- `processing/sensel_morph_osc_receiver/`: Processing receiver for live OSC
-  from `sensel_morph_osc`.
-- `processing/sensel_morph_osc_transmitter/`: Processing device-to-OSC
-  transmitter, with native Java serial and OSC code.
-- `processing/sensel_morph_websocket_transmitter/`: Processing device-to-WebSocket
-  transmitter, compatible with the p5.js WebSocket receivers.
-- `processing/sensel_morph_syphon_osc_transmitter/`: Processing
-  device-to-OSC transmitter that also publishes pressure, labels, and contacts
-  as Syphon buffers.
-- `processing/sensel_morph_osc_calibrator/`: Processing pressure calibration
-  tool for dark/no-touch and brush-pass per-pixel maps.
-- `docs/communications_protocol.md`: measured CDC/register protocol notes.
-- `docs/narrative.md`: readable account of how the raw data was recovered.
-- `docs/prior_art_survey.md`: annotated prior-art survey and source inventory.
+---
 
-## Documentation
+## Processing Utilities for Sensel Morph
 
-- [docs/narrative.md](docs/narrative.md): how the raw pressure, labels, contact
-  geometry, accelerometer, calibration, and output bridges were recovered.
-- [docs/communications_protocol.md](docs/communications_protocol.md): low-level
+![sensel_loop_2](images/sensel_loop_2.gif)
+
+[Processing](https://processing.org/) is a popular open-source, Java-based toolkit for creative coding. [**This repository presents six Processing utilities**](processing/README.md) for viewing, transmitting, calibrating, recording and replaying data from the Sensel Morph touchpad. 
+
+It's likely that the Processing app you want is [**`sensel_morph_osc_transmitter`**](processing/sensel_morph_osc_transmitter/README.md), which connects directly to the Sensel Morph over USB serial, decodes live frames, displays the pressure/label/contact layers, and emits this device data over [OSC](https://en.wikipedia.org/wiki/Open_Sound_Control). However, there are also other Processing apps which transmit Sensel Morph data over [WebSockets](https://en.wikipedia.org/wiki/WebSocket) or [Syphon](https://syphon.info/), as summarized [here](processing/README.md) and in the table below. 
+
+Unless otherwise noted, these apps are compatible with Processing 4.5.5. To minimize dependencies, these apps use the Processing's built-in Serial Library to communicate with the device, and native Java UDP code for OSC; they do not depend on `oscP5`, the Sensel SDK, or any of the Python code in this repository.
+
+
+### Summary of Processing Apps
+
+| Processing App | Intended Use |
+|---|---|
+| [**sensel_morph_osc_transmitter**](processing/sensel_morph_osc_transmitter/README.md) | Standalone live USB reader and OSC broadcaster. Features local display, performance recording, and playback. | 
+| [**sensel_morph_osc_receiver**](processing/sensel_morph_osc_receiver/README.md) | Live OSC monitor (receiver) and viewer. |
+| [**sensel_morph_syphon_osc_transmitter**](processing/sensel_morph_syphon_osc_transmitter/README.md) | Standalone live USB reader, which transmits device data over both OSC and Syphon (for audiovisual tools like TouchDesigner). Note: compatible up to Processing 4.3 owing to the Syphon library. | 
+| [**sensel_morph_websocket_transmitter**](processing/sensel_morph_websocket_transmitter/README.md) | Standalone live USB read and WebSocket transmitter (for browser-based/p5 clients). | 
+| [**sensel_morph_capture_viewer**](processing/sensel_morph_capture_viewer/README.md) | Offline recording viewer. |
+| [**sensel_morph_osc_calibrator**](processing/sensel_morph_osc_calibrator/README.md) | Creates optional pressure calibration files to compensate for fixed noise patterns. |
+
+![processing_to_touchdesigner_via_syphon.png](images/processing_to_touchdesigner_via_syphon.png)
+
+
+---
+
+## Python Utilities for Sensel Morph
+
+![sensel_lights.gif](images/sensel_lights.gif)
+
+The Python command-line tools live in [`python/`](python/). For installation instructons, command summaries, recording examples, and notes about behavior and implementation, please see: [**`python/README.md`**](python/README.md)
+
+
+### Summary of Python Tools
+
+| Python Program | Intended Use |
+|---|---|
+| [`sensel_morph_osc.py`](python/tools/sensel_morph_osc.py) | Live USB reader and OSC broadcaster. |
+| [`sensel_morph_ws.py`](python/tools/sensel_morph_ws.py) | Live USB reader and WebSocket broadcaster. |
+| [`sensel_morph_capture_session.py`](python/tools/morph_capture_session.py) | Performance recording tool; produces JSONL/JSON. |
+| [`sensel_morph_led.py`](python/tools/sensel_morph_led.py) | Controls the Morph's 24 white LEDs. |
+
+
+---
+
+## Other Documentation
+
+This repository aims to be a thorough resource for anyone hacking the Sensel Morph in the future. To that end, more information than necessary is available in the following documents:
+
+- [**Communications Protocol**](docs/communications_protocol.md): low-level
   USB CDC/register protocol, frame formats, compression, labels, contacts,
   accelerometer, and LED notes.
-- [docs/prior_art_survey.md](docs/prior_art_survey.md): annotated technical
-  bibliography of SDKs, examples, OSC bridges, decompression resources, and
-  other prior work.
-- [docs/implementation_details.md](docs/implementation_details.md): lower-level
+- [**Implementation Details**](docs/implementation_details.md): lower-level
   notes on contact geometry, calibration application, serial-number handling,
   and contact summary semantics.
-- [docs/third_party_archive/](docs/third_party_archive/): small archival copies
+- [**Reverse Engineering Lab Notes**](docs/narrative.md): how the raw pressure, labels, contact geometry, accelerometer, calibration, and output bridges were recovered.
+- [**Prior Art Survey**](docs/prior_art_survey.md): annotated technical
+  bibliography of SDKs, examples, OSC bridges, decompression resources, and
+  other prior work.
+- [**Third Party Archive**](docs/third_party_archive/): small archival copies
   of third-party files that were important to the reverse-engineering work.
-
-## Python Tools
-
-The Python command-line tools live in [`python/`](python/). See
-[`python/README.md`](python/README.md) for installation, command summaries,
-recording examples, LED control, offline decoding, live OSC broadcast, live
-WebSocket broadcast, resolution behavior, RLE/chunking notes, compatibility
-modes, and profiling notes.
-
-Installed commands include:
-
-- `sensel_morph_osc`: live USB CDC reader and OSC broadcaster.
-- `sensel_morph_ws`: live USB CDC reader and WebSocket broadcaster for browser sketches.
-- `sensel_morph_led`: white LED strip control and pressure-responsive modes.
-- `sensel_decode_pressure`: offline pressure decoder and PNG/CSV/JSON preview writer.
-- `sensel_morph_capture_session`: current JSONL/JSON recording tool.
-- `sensel_morph_capture`: older one-shot/diagnostic capture utility.
-
-## Implementation Details
-
-Detailed implementation notes have been moved to
-[`docs/implementation_details.md`](docs/implementation_details.md), including
-contact geometry source selection, raster-derived ellipses, the pressure+bbox
-hybrid contact path, dimensionless firmware bboxes, serial-number handling,
-calibration application, and `/sensel_morph/contact_summary` semantics.
-
-## Processing OSC Transmitters
-
-Two standalone Processing sketches can connect directly to the Morph and transmit OSC:
-
-```text
-processing/sensel_morph_osc_transmitter/sensel_morph_osc_transmitter.pde
-processing/sensel_morph_syphon_osc_transmitter/sensel_morph_syphon_osc_transmitter.pde
-```
-
-Both sketches use Processing's [Serial Library](https://processing.org/reference/libraries/serial/index.html) for USB CDC register I/O and
-native Java UDP code for OSC; they do not use `oscP5`, the Sensel SDK, or the
-Python transmitter. 
-
-Each sketch loads a tab-separated `data/settings.txt`:
-
-```text
-host	127.0.0.1
-port	1560
-pressure	true
-pressure_res	med
-pressure_type	uint8
-labels	true
-contacts	true
-rle	true
-compat	
-```
-
-Supported settings include `device`, `serial_number`, `pressure`,
-`pressure_res` (`high`, `med`, `low`), `pressure_type` (`uint8`, `uint16`),
-`use_calibration`, `labels`, `contacts`, `rle`, `chunk_size`, `compat`
-(`morphosc`, `senselosc`, or both), `force_scale`, `fps_limit`,
-`read_timeout_ms`, and `accel_counts_per_g`. Accelerometer data is always
-requested and transmitted.
-
-In `sensel_morph_osc_transmitter`, press `h` to show/hide the HUD and
-right-side settings UI. The UI can change streams, resolution, pressure type,
-RLE, calibration, compatibility modes, and display sampling while the app is
-running. Calibration is offered only when a matching
-`data/calibration_<serial_number>.json` file exists. Stream and format changes
-briefly reconfigure device scanning without restarting the Processing sketch.
-The `Save settings.txt` button writes the current UI values to
-`data/settings.txt`.
-
-The Syphon transmitter additionally requires the Processing Syphon library
-(`codeanticode.syphon.*`) and publishes three sources: `Sensel Morph Pressure`,
-`Sensel Morph Labels`, and `Sensel Morph Contacts`. Its pressure buffer defaults
-to bicubic shader interpolation for prettier graphics output; label buffers are
-always displayed nearest-neighbor so label IDs remain discrete.
-
-
 
 ---
