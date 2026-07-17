@@ -8,7 +8,7 @@ This directory contains the Python command-line tools for capturing, decoding,
 broadcasting, and experimenting with Sensel Morph data. Install them from this
 directory with `pipx` or run them from source during development.
 
-**Contents:**
+### Contents
 
 * [Installation](#installation)
 * [Recording](#recording)
@@ -16,6 +16,8 @@ directory with `pipx` or run them from source during development.
 * [Live WebSocket Broadcast](#live-websocket-broadcast)
 * [Resolution Behavior](#resolution-behavior)
 * [LED Strip Control](#led-strip-control)
+
+---
 
 ### Summary of Python Tools
 

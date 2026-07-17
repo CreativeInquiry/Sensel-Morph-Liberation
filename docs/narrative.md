@@ -1,5 +1,6 @@
 # Recovery of Sensel Morph Data: Lab Notes
 
+
 ---
 
 ## Overview
@@ -19,8 +20,11 @@ disassembly of Sensel's Windows decompression DLL, we recovered the pressure
 codec, the label codec, the frame layout, and enough of the contact pipeline to
 build live OSC, WebSocket, Processing, p5.js, and Syphon tools.
 
+The result of our work is the first complete open-source implementation of the Sensel Morph's raw pressure data pipeline. It restores open access to the Sensel Morph's raw sensing capabilities after the original software stack was abandoned.
+
 #### Contents: 
 
+* [The Problem](#the-problem)
 * [Starting Point](#starting-point)
 * [Breadcrumbs From Prior Work](#breadcrumbs-from-prior-work)
 * [Probing the Real Device](#probing-the-real-device)
@@ -35,6 +39,18 @@ build live OSC, WebSocket, Processing, p5.js, and Syphon tools.
 * [Conclusion](#conclusion)
 
 ---
+
+## The Problem 
+
+Sensel’s public SDK source calls `senselDecompressFrame(...)`, but Sensel did not publish the corresponding decompressor implementation in `sensel-api`; the implementation was distributed only as a separate binary library. This is clear in Sensel’s own `sensel-api` repo, last updated in 2017:
+
+  - `sensel.c` includes `sensel_decompress.h` only behind `SENSEL_PRESSURE`
+    (<https://github.com/sensel/sensel-api/blob/master/sensel-lib/src/sensel.c#L37-L39>)
+  - Later, pressure/label frame parsing delegates to `senselDecompressFrame(...)`
+    (<https://github.com/sensel/sensel-api/blob/master/sensel-lib/src/sensel.c#L851-L855>)
+  - The public source directory [`sensel-lib/src`]
+    (https://github.com/sensel/sensel-api/tree/master/sensel-lib/src) contains `sensel.c`, `sensel_register.c`, headers, etc. — but no `sensel_decompress.c` implementation.
+  - Furthermore, Sensel’s PureData repo header, [`sensel_decompress.h`](https://github.com/sensel/PD-objects/blob/master/sensel-win-msys-include/sensel_decompress.h#L50-L63) declares `senselDecompressFrame(...)` — but it is only a header/API boundary, not source.
 
 ## Starting Point
 
