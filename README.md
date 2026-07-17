@@ -70,8 +70,8 @@ In addition to the Processing apps, this repository also provides:
 
 * [**sensel_morph_syphon_osc_receiver.toe**](touchdesigner/sensel_morph_syphon_osc_receiver.toe), a sample **TouchDesigner** project which receives Syphon and/or OSC data from the provided transmitters; 
 * Receivers for Sensel Morph data broadcast on WebSockets, built in **p5.js**:
-  * [**sensel_morph_ws_receiver_p5v1**](p5js/sensel_morph_ws_receiver_p5v1/README.md)
-  * [**sensel_morph_ws_receiver_p5v2**](p5js/sensel_morph_ws_receiver_p5v2/README.md)
+  * [**sensel_morph_ws_receiver_p5v1**](p5js/sensel_morph_ws_receiver_p5v1/)
+  * [**sensel_morph_ws_receiver_p5v2**](p5js/sensel_morph_ws_receiver_p5v2/)
 
 A local server is not required to run the p5.js receiver apps. 
 
