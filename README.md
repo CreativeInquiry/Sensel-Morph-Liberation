@@ -15,7 +15,7 @@ Access and transmit complete Sensel Morph touchpad data over OSC, Syphon, or Web
 
 The [Sensel Morph](https://guide.sensel.com/morph/) is an unusually expressive pressure-sensitive input device capable of reporting not only touches, but dense force images over its entire sensing surface. Unlike conventional multitouch devices, it can measure and report continuous pressure distributions from fingers, hands, brushes, and custom physical overlays.
 
-Although Sensel published an [SDK](https://github.com/sensel/sensel-api), the key components required to access the Morph's raw pressure imagery [were distributed only as closed binary libraries](docs/narrative#the-problem). After official development of the SDK ceased in 2017, those libraries became increasingly difficult to use, limiting access to much of the hardware's most interesting capabilities.
+Although Sensel published an [SDK](https://github.com/sensel/sensel-api), the key components required to access the Morph's raw pressure imagery [were distributed only as closed binary libraries](docs/narrative.md#the-problem). After official development of the SDK ceased in 2017, those libraries became increasingly difficult to use, limiting access to much of the hardware's most interesting capabilities.
 
 This repository reconstructs those missing pieces through an open implementation of the Morph's communication protocol, pressure and label decoding, and live data bridges. It provides standalone tools for Processing and Python that communicate directly with the hardware, without depending on Sensel's SDK. The utilities in this repository will allow you to:
 
