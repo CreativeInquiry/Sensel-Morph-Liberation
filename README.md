@@ -1,6 +1,6 @@
 # Sensel Morph Liberation
 
-Access and transmit complete Sensel Morph touchpad data over OSC, Syphon, or WebSockets with Processing or Python — and with no SDK dependencies.<br/>Golan Levin, July 2026
+Access and transmit complete Sensel Morph touchpad data over OSC, TUIO, Syphon, or WebSockets with Processing or Python — and with no SDK dependencies.<br/>Golan Levin, July 2026
 
 
 ![Image of the Sensel Morph's 185x105 pressure-image visualized in Processing](images/sensel_loop_1.gif)<br />*Image of the Sensel Morph's 185x105 pressure-image visualized in Processing*
@@ -20,7 +20,7 @@ Although Sensel published an [SDK](https://github.com/sensel/sensel-api), the ke
 This repository reconstructs those missing pieces through an open implementation of the Morph's communication protocol, pressure and label decoding, and live data bridges. It provides standalone tools for Processing and Python that communicate directly with the hardware, without depending on Sensel's SDK. The utilities in this repository will allow you to:
 
 * access and visualize the Morph's complete sensing data, including pressure images, label images, contacts, and accelerometer data
-* transmit Sensel Morph data over OSC, WebSockets, and Syphon
+* transmit Sensel Morph data over OSC, TUIO, WebSockets, and Syphon
 * record, replay, and re-transmit interaction sessions
 * calibrate the device to compensate for its fixed noise patterns
 * interface with p5.js, Processing, Python, TouchDesigner, etc.
@@ -93,6 +93,7 @@ The Python command-line tools live in [`python/`](python/). For installation ins
 | Python Program | Intended Use |
 |---|---|
 | [`sensel_morph_osc.py`](python/tools/sensel_morph_osc.py) | Live USB reader and OSC broadcaster. |
+| [`sensel_morph_tuio.py`](python/tools/sensel_morph_tuio.py) | Live USB reader and TUIO 1.1 cursor/blob broadcaster. |
 | [`sensel_morph_ws.py`](python/tools/sensel_morph_ws.py) | Live USB reader and WebSocket broadcaster. |
 | [`sensel_morph_capture_session.py`](python/tools/morph_capture_session.py) | Performance recording tool; produces JSONL/JSON. |
 | [`sensel_morph_led.py`](python/tools/sensel_morph_led.py) | Controls the Morph's 24 white LEDs. |

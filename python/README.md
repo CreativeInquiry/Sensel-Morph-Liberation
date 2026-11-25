@@ -13,6 +13,7 @@ directory with `pipx` or run them from source during development.
 * [Installation](#installation)
 * [Recording](#recording)
 * [Live OSC Broadcast](#live-osc-broadcast)
+* [Live TUIO Broadcast](#live-tuio-broadcast)
 * [Live WebSocket Broadcast](#live-websocket-broadcast)
 * [Resolution Behavior](#resolution-behavior)
 * [LED Strip Control](#led-strip-control)
@@ -24,6 +25,7 @@ directory with `pipx` or run them from source during development.
 | Command & Source File | Primary use | Receives | Sends / Produces | Notes |
 |---|---|---|---|---|
 | [`sensel_morph_osc.py`](tools/sensel_morph_osc.py) | Live USB CDC reader and OSC broadcaster. | Raw Morph frames over USB CDC serial. | OSC over UDP, default port `1560`. | Main Python bridge for Processing, Max, TouchDesigner, and other OSC tools. Accelerometer is always sent; pressure, labels, and contacts are selected by flags. |
+| [`sensel_morph_tuio.py`](tools/sensel_morph_tuio.py) | Live USB CDC reader and TUIO 1.1 broadcaster. | Firmware contact frames over USB CDC serial. | Profile-specific `/tuio/2Dcur` bundles, plus optional `/tuio/2Dblb` bundles. | TUIO cursor positions/motion by default; `--blob` adds firmware ellipse dimensions, angle, area, and rotational motion. |
 | [`sensel_morph_ws.py`](tools/sensel_morph_ws.py) | Live USB CDC reader and WebSocket broadcaster for browser sketches. | Raw Morph frames over USB CDC serial. | WebSocket binary raster frames plus JSON metadata/contact messages. | Browser-facing path for the p5.js receivers. Pressure and labels are sent as `uint8`. |
 | [`sensel_morph_capture_session.py`](tools/morph_capture_session.py) | Current Python recorder. | Raw Morph frames over USB CDC serial. | Processing-compatible JSONL recordings by default; legacy JSON on request. | Preferred Python recording tool. Takes newline-delimited JSON commands on stdin. |
 | [`sensel_morph_capture.py`](tools/morph_capture.py) | One-shot low-level capture/probe utility. | Raw Morph frames over USB CDC serial. | Single capture/probe outputs. | Older diagnostic utility; useful for low-level probing, not the main recorder. |
@@ -53,6 +55,7 @@ If `pipx install .` reports that Python 3.9 is too old, keep using the explicit
 3.10+ interpreter. This installs command-line tools without requiring you to create or activate a project venv; it should produce: 
 
 - `sensel_morph_osc`: live USB CDC reader and OSC broadcaster.
+- `sensel_morph_tuio`: live USB CDC reader and TUIO 1.1 cursor/blob broadcaster.
 - `sensel_morph_ws`: live USB CDC reader and WebSocket broadcaster for browser sketches.
 - `sensel_morph_capture`: one-shot capture utility.
 - `sensel_morph_capture_session`: stdin-driven capture session utility.
@@ -237,6 +240,149 @@ the firmware to include every contact packet field, but it is not exposed as a
 user option: the public contact stream should report the best known geometry,
 not ask users to choose among firmware ellipse/bbox/peak variants we already
 know are inferior or laggy.
+
+---
+
+## Live TUIO Broadcast
+
+`sensel_morph_tuio` reads firmware contact frames directly from the Morph and
+broadcasts TUIO 1.1 bundles over UDP. It is intended for
+existing TUIO clients and multitouch frameworks rather than for raw pressure
+transfer. The default destination is UDP port `3333` on `127.0.0.1`.
+
+Cursor-only output is the default:
+
+```sh
+sensel_morph_tuio
+```
+
+This emits profile-specific `/tuio/2Dcur` bundles in TUIO 1.1 order: optional
+`source`, `alive`, zero or more `set` messages, and a final `fseq`. Normal
+hardware-frame bundles use incrementing non-negative frame sequence numbers
+starting at zero; startup, shutdown, and redundant full-state messages use the
+reserved `fseq -1`.
+Startup and shutdown empty-state bundles clear the client state. The unused
+`/tuio/2Dobj` profile is never emitted.
+
+Cursor `set` messages use the TUIO 1.1 argument order:
+
+```text
+/tuio/2Dcur set session_id x y x_velocity y_velocity motion_acceleration
+```
+
+Positions are normalized to the active Morph surface (`230 x 130 mm` on current
+Morph hardware). Velocities are normalized units per second and acceleration is
+the derivative of scalar motion speed, matching the TUIO 1.1 C++ reference
+implementation. No smoothing or OneEuro filtering is applied.
+
+Firmware `END` contacts are removed immediately by omission from the complete
+`alive` list; they are not retransmitted as final cursor/blob positions, and an
+unknown or repeated `END` never creates a new TUIO session. New contacts are
+otherwise activated immediately, subject to the force and size filters below.
+
+Firmware contacts also report total force in grams. `--min-contact-force G`
+requires a new contact to reach at least `G` grams before it is activated as a
+TUIO cursor/blob. The threshold applies only during activation: once a contact
+is active, a later force dip does not remove or flicker the TUIO session. The
+default is `10` g; `--min-contact-force 0` disables force filtering. On the
+validation Morph, faint post-release flicker contacts often stayed below about
+13 g; thresholds around 10--15 g suppressed most of them with less onset delay,
+while 20 g was more aggressive but could suppress or delay intentional very
+light touches.
+
+`--finger-size MM` is the maximum contact width used by the finger classifier.
+The classifier is evaluated dynamically on every frame and is intended to keep
+compact finger/thumb-like contacts in `/tuio/2Dcur` while leaving other contacts
+blob-only. In addition to the width limit, elongated contacts need sufficient
+force density so that firmly pressed long narrow fingers can remain cursors
+without also accepting long low-density palm contacts. Because palm contact often
+fragments into several small locally elliptical contacts, contacts in a group
+of three or more simultaneous contacts with a nearest neighbor closer than
+about 15 mm are also treated as non-finger-like. Intentional multi-finger
+contacts are normally spaced farther apart than that, but very close finger
+clusters can be affected by this deliberate tradeoff. This is intentionally a
+practical heuristic rather than perfect palm detection: small palm-edge fragments
+can still momentarily qualify as cursors during contact onset or release, while
+the sustained palm contact remains blob-only.
+
+Non-finger contacts remain tracked and are still emitted as blobs when `--blob`
+is enabled. If an active contact stops qualifying as finger-like, its cursor
+session ends; if it later qualifies again, it receives a fresh cursor session
+ID. Width rather than length is the primary size constraint because a firmly
+pressed finger can become a very long narrow ellipse while remaining cursor-like.
+The default `20` mm covered the measured normal-finger and thumb range with
+margin while rejecting wider palm-sized contacts. `--finger-size 0` disables
+this shape/context classifier. Because the classifier uses ellipse geometry,
+the firmware ellipse contact bit is requested even for cursor-only output
+unless the classifier is disabled.
+
+Add firmware ellipse blobs alongside the cursors with:
+
+```sh
+sensel_morph_tuio --blob
+```
+
+In this mode the tool requests only the firmware ellipse contact bit and emits
+separate `/tuio/2Dcur` and `/tuio/2Dblb` bundles. When a contact qualifies for
+both profiles from its initial activation, cursor and blob entries intentionally
+share the same TUIO session ID. Oversized contacts can be blob-only, and a
+contact that becomes cursor-eligible later receives a fresh cursor session ID;
+TUIO session IDs are profile-specific. Blob messages use:
+
+```text
+/tuio/2Dblb set session_id x y angle width height area x_velocity y_velocity rotation_velocity motion_acceleration rotation_acceleration
+```
+
+Blob width and height are normalized from the firmware major/minor ellipse axes;
+area is normalized by the firmware-reported sensor-element count (`185 x 105` on
+the Morph) after applying the firmware area unit-shift register. Sensel ellipse
+orientation zero means a vertical major axis, so the tool adds 90 degrees when
+mapping it to the TUIO major-axis angle convention. Rotation velocity is in
+full rotations per second, as in the TUIO C++ reference. Because this tool
+intentionally uses firmware-only geometry, ellipse centroids/axes can inherit the
+firmware tracking pipeline's approximately one-frame lag; pressure rasters are
+not enabled or recomputed internally.
+
+Useful options:
+
+```sh
+sensel_morph_tuio --host 192.168.1.20 --port 3333
+sensel_morph_tuio --blob --scan-detail medium
+sensel_morph_tuio --update-mode changed --refresh-interval 1.0
+sensel_morph_tuio --blob --min-contact-force 15
+sensel_morph_tuio --blob --finger-size 15
+sensel_morph_tuio --finger-size 0
+sensel_morph_tuio --invert-x --invert-y --invert-angle
+sensel_morph_tuio --source sensel_morph@myhost
+sensel_morph_tuio --no-source
+```
+
+`--scan-detail` defaults to `high`. `--update-mode full` (the default) sends
+every active contact on every decoded hardware frame. `--update-mode changed`
+sends only contacts whose TUIO cursor or blob state changed, while still
+emitting bundles for lifecycle changes and a periodic full-state refresh every
+`--refresh-interval` seconds. Because the firmware
+ellipse geometry is analog and noisy, blob angle/axis/area values may
+change slightly on most frames even when a contact appears stationary; cursor
+positions are usually suppressed more effectively than blob geometry in
+`changed` mode. `--scan-detail` selects the firmware scan detail (`high`,
+`medium`, or `low`) and can be used to compare contact quality/latency
+tradeoffs. On the validation Morph, contacts-only frame rates were
+approximately 83 fps (`high`), 266 fps (`medium`), and 458 fps (`low`); exact
+rates can vary by firmware and host. `--no-source` omits the optional TUIO
+source message.
+
+The tool uses `python-tuio`'s cursor/blob `set` message encoding with direct
+`python-osc` UDP transport. Bundle composition is local because `python-tuio
+0.0.9`'s stock server emits mixed-profile bundles, includes the unused object
+profile, lacks source support, and always uses `fseq -1`.
+
+Only one process should use a Morph serial device at a time; concurrent
+transmitters can interleave requests and frame responses. If stale touches
+persist after testing, check for leftover `sensel_morph_*` processes, restart
+the receiver, and restart the transmitter. UDP receivers cannot time out
+contacts on their own if a sender is hard-killed before its empty shutdown
+state arrives.
 
 ---
 
